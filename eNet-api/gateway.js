@@ -99,8 +99,9 @@ method:
 					var acknowledgeMsg = [];
 					for (var i = 0; i < json.VALUES.length; i++) {
 						var jsonItem = json.VALUES[i];
-                        console.log("Doing" + jsonItem.NUMBER);
+                        			console.log("Doing" + jsonItem.NUMBER);	
 						var channel = jsonItem.NUMBER-16;
+						console.log("Channel" + channel);
 						if (channel >= 0) {
 							this.emit('UpdateAvailableForChannel',channel,jsonItem);
 							console.log("Emitted on channel: " + channel);
