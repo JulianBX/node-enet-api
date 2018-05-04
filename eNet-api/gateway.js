@@ -55,6 +55,9 @@ function gateway(config) {
                         var msg = `{"CMD":"ITEM_VALUE_RES","PROTOCOL":"0.03","TIMESTAMP":"${Math.floor(Date.now()/1000)}","VALUES":${JSON.stringify(acknowledgeMsg)}\r\n\r\n`;
 		  // 	console.log("MSG: " + msg);
 	//		this.client.write(msg);
+			//Acknowledge-Messages don't seem to be required. It still works for me.
+			//When enabling there are way too many messages and the whole system fails!
+			//Even more trouble: When acknowledging the gateway still sends the message 5 times...
                     }
                 }
                 else {
