@@ -7,7 +7,7 @@ const util = require('util');
 const EventEmitter = require('events');
 
 function gateway(config) {
-    this.idleTimeout = 3000000;
+    this.idleTimeout = 30000000;
     this.host = config.host;
     this.name = config.name || config.host;
     this.id = config.mac || config.name;
@@ -15,6 +15,8 @@ function gateway(config) {
     this.client = new net.Socket();
     this.connected = false;
     this.data = '';
+
+  //  this.commandQueue = [];
 
     this.client.on('close', function() {
         this.connected = false;
@@ -37,18 +39,16 @@ function gateway(config) {
         for (var i = 0; i < arr.length-1; ++i) {
             try{
                 var json=JSON.parse(arr[i]);
-		//console.log("\r\n Neuer Befehl: \n"+JSON.stringify(json));
+//		console.log("\r\n Neuer Befehl: \n"+JSON.stringify(json));
                 // Check for channel messages
                 // {"PROTOCOL":"0.03","TIMESTAMP":"08154711","CMD":"ITEM_UPDATE_IND","VALUES":[{"NUMBER":"16","VALUE":"1","STATE":"ON","SETPOINT":"255"}]}
                 if (json && (json.CMD == "ITEM_UPDATE_IND") && Array.isArray(json.VALUES)) {
-                    var acknowledgeMsg = [];
+                    var acknowledgeMsg = [];//Noch zu erzeugen: Ein Timer der die Nachrichten etwas verlangsamt!
 		    json.VALUES.forEach(function(obj) {
                         if (obj.NUMBER){
-			    //console.log("Bisher schon ganz gut");
-			    acknowledgeMsg.push({"NUMBER":obj.NUMBER.toString(),"STATE":obj.STATE.toString()});
-                            this.emit('UpdateAvailable',obj);
-			    this.emit(obj.NUMBER.toString(), null, obj);
-                        }
+			    	acknowledgeMsg.push({"NUMBER":obj.NUMBER.toString(),"STATE":obj.STATE.toString()});
+				this.emit('UpdateAvailable',obj);
+			}
                     }.bind(this));
 		    if (acknowledgeMsg != []){
 			//{"CMD":"ITEM_VALUE_RES","PROTOCOL":"0.03","TIMESTAMP":"1513688129","VALUES":[{"NUMBER":16,"STATE":"OFF"},{"NUMBER":17,"STATE":"OFF"}]}
