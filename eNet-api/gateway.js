@@ -54,7 +54,7 @@ function gateway(config) {
 			//{"CMD":"ITEM_VALUE_RES","PROTOCOL":"0.03","TIMESTAMP":"1513688129","VALUES":[{"NUMBER":16,"STATE":"OFF"},{"NUMBER":17,"STATE":"OFF"}]}
                         var msg = `{"CMD":"ITEM_VALUE_RES","PROTOCOL":"0.03","TIMESTAMP":"${Math.floor(Date.now()/1000)}","VALUES":${JSON.stringify(acknowledgeMsg)}\r\n\r\n`;
 		  // 	console.log("MSG: " + msg);
-			this.client.write(msg);
+	//		this.client.write(msg);
                     }
                 }
                 else {
