@@ -16,6 +16,8 @@ function gateway(config) {
     this.connected = false;
     this.data = '';
 
+    this.recentChannels = [];
+
   //  this.commandQueue = [];
 
     this.client.on('close', function() {
@@ -54,10 +56,7 @@ function gateway(config) {
 			//{"CMD":"ITEM_VALUE_RES","PROTOCOL":"0.03","TIMESTAMP":"1513688129","VALUES":[{"NUMBER":16,"STATE":"OFF"},{"NUMBER":17,"STATE":"OFF"}]}
                         var msg = `{"CMD":"ITEM_VALUE_RES","PROTOCOL":"0.03","TIMESTAMP":"${Math.floor(Date.now()/1000)}","VALUES":${JSON.stringify(acknowledgeMsg)}\r\n\r\n`;
 		  // 	console.log("MSG: " + msg);
-	//		this.client.write(msg);
-			//Acknowledge-Messages don't seem to be required. It still works for me.
-			//When enabling there are way too many messages and the whole system fails!
-			//Even more trouble: When acknowledging the gateway still sends the message 5 times...
+//			this.client.write(msg);
                     }
                 }
                 else {
@@ -186,7 +185,7 @@ gateway.prototype.signIn = function(channels, callback){
         if (callback) callback(new Error('signIn needs a channels array.'));
         return;
     }
-
+    this.recentChannels = channels;
     if (callback) l = new responseListener(this, "ITEM_VALUE_SIGN_IN_RES", callback);
 
     if (!this.connected) this.connect();
@@ -196,6 +195,26 @@ gateway.prototype.signIn = function(channels, callback){
 
 // response: {"PROTOCOL":"0.03","TIMESTAMP":"08154711","CMD":"ITEM_VALUE_SIGN_IN_RES","ITEMS":[16]}
 }
+
+gateway.prototype.refresh = function(callback){
+    var l;
+
+    if (!Array.isArray(this.recentChannels))
+    {
+	console.log("gateway.prototype.refresh: No recentChannels yet ");
+        if (callback) callback(new Error('signIn needs a channels array.'));
+        return;
+    }
+    if (callback) l = new responseListener(this, "ITEM_VALUE_SIGN_IN_RES", callback);
+
+    if (!this.connected) this.connect();
+    console.log("gateway.prototype.refresh: Refreshing following channels: " + this.recentChannels);
+    var msg = `{"ITEMS":${JSON.stringify(this.recentChannels)},"CMD":"ITEM_VALUE_SIGN_IN_REQ","PROTOCOL":"0.03","TIMESTAMP":"${Math.floor(Date.now()/1000)}"}\r\n\r\n`;
+    this.client.write(msg);
+
+// response: {"PROTOCOL":"0.03","TIMESTAMP":"08154711","CMD":"ITEM_VALUE_SIGN_IN_RES","ITEMS":[16]}
+}
+
 
 gateway.prototype.setValue = function(channel, on, long, callback){
     var l;
